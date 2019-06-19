@@ -1,5 +1,5 @@
 # PyRadio
-Simple GUI for streaming internet radios using python-vlc and Qt for Python.
+Simple GUI for streaming internet radios using VLC, python-vlc and Qt for Python.
 
 
 ### Installation
@@ -11,6 +11,7 @@ git clone https://github.com/LordzShadow/PyRadio.git
 cd PyRadio
 pip install -r requirements.txt
 ```
+- You also need VLC Media Player 32- or 64-bit depending on your Python version.
 
 ### Usage
 
