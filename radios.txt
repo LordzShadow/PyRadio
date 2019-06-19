@@ -1,0 +1,5 @@
+MyHits:http://striiming.trio.ee/myhits.ogg
+Elmar:http://striiming.trio.ee/elmar.ogg
+Retro:http://retro.babahhcdn.com/RETRO
+Rock:http://skyplus.babahhcdn.com:7004/rck
+Power:http://phr.babahhcdn.com:9000/phr
