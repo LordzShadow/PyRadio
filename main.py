@@ -16,15 +16,14 @@ class MyWidget(QWidget):
             for line in lines:
                 nline = line.strip().split(":", 1)
                 self.streams[nline[0]] = nline[1]
-            print(self.streams)
 
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
-
+        
         self.pal = QtGui.QPalette(self.palette())
-        self.pal.setColor(self.pal.Background, QColor(10,10,10,255))
+        self.pal.setColor(self.pal.Background, QColor(15,15,15,255))
         self.setPalette(self.pal)
-        self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
+        self.pal.setColor(self.pal.Foreground, QColor(255, 255, 255, 255))
         self.playing_label = QLabel("Stopped")
         self.label = QLabel("Radios:")
         self.playing_label.setPalette(self.pal)
@@ -80,5 +79,6 @@ if __name__ == "__main__":
     widget = MyWidget()
     widget.resize(600, 400)
     widget.show()
+    widget.setWindowTitle("PyRadio")
 
     sys.exit(app.exec_())
