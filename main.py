@@ -1,6 +1,7 @@
 import vlc
 import sys
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2. QtGui import QColor
 from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget
 
 
@@ -20,13 +21,26 @@ class MyWidget(QWidget):
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
 
+        self.pal = QtGui.QPalette(self.palette())
+        self.pal.setColor(self.pal.Background, QColor(10,10,10,255))
+        self.setPalette(self.pal)
+        self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
         self.playing_label = QLabel("Stopped")
         self.label = QLabel("Radios:")
+        self.playing_label.setPalette(self.pal)
+        self.label.setPalette(self.pal)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.playing_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
         self.btn = QPushButton("Play/Stop")
+        self.btn.setPalette(self.pal)
         self.btn.clicked.connect(self.control)
         self.list = QListWidget()
+        self.pal.setColor(self.pal.Base, QColor(20, 20, 20, 255))
+        self.list.setPalette(self.pal)
+        self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
+        self.list.setPalette(self.pal)
+
         for n in self.streams:
             self.list.addItem(n)
 
