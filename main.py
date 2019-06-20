@@ -1,7 +1,8 @@
 import vlc
 import sys
-from PySide2 import QtCore, QtWidgets, QtGui
-from PySide2. QtGui import QColor
+from PySide2 import QtWidgets, QtGui
+from PySide2.QtGui import QColor
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget
 
 
@@ -28,8 +29,8 @@ class MyWidget(QWidget):
         self.label = QLabel("Radios:")
         self.playing_label.setPalette(self.pal)
         self.label.setPalette(self.pal)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.playing_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.playing_label.setAlignment(Qt.AlignCenter)
         self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
         self.btn = QPushButton("Play/Stop")
         self.btn.setPalette(self.pal)
