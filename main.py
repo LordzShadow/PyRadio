@@ -1,22 +1,18 @@
 import vlc
 import sys
+import webbrowser
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget
+from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout
 
+streamfile = "radios.txt"
 
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
 
         self.streams = {}
-
-        with open("radios.txt", "r") as file:
-            lines = file.readlines()
-            for line in lines:
-                nline = line.strip().split(":", 1)
-                self.streams[nline[0]] = nline[1]
 
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
@@ -40,16 +36,27 @@ class MyWidget(QWidget):
         self.list.setPalette(self.pal)
         self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
         self.list.setPalette(self.pal)
+        self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
+        self.edit = QPushButton("Edit Radios")
+        self.edit.setPalette(self.pal)
+        self.edit.clicked.connect(self.open)
+        self.refresh = QPushButton("Refresh")
+        self.refresh.clicked.connect(self.refreshstreams)
+        self.refresh.setPalette(self.pal)
 
-        for n in self.streams:
-            self.list.addItem(n)
+        self.refreshstreams()
+
+        self.buttons = QHBoxLayout()
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.list)
         self.layout.addWidget(self.playing_label)
-        self.layout.addWidget(self.btn)
+        self.buttons.addWidget(self.btn)
+        self.buttons.addWidget(self.edit)
+        self.buttons.addWidget(self.refresh)
 
+        self.layout.addLayout(self.buttons)
         self.setLayout(self.layout)
 
     def control(self):
@@ -72,6 +79,23 @@ class MyWidget(QWidget):
         self.playing_label.setText("Playing")
         self.playing = True
 
+    def open(self):
+        webbrowser.open(streamfile)
+
+    def refreshstreams(self):
+
+        self.streams = {}
+
+        with open(streamfile, "r") as file:
+            lines = file.readlines()
+            for line in lines:
+                nline = line.strip().split(":", 1)
+                self.streams[nline[0]] = nline[1]
+
+        self.list.clear()
+
+        for n in self.streams:
+            self.list.addItem(n)
 
 if __name__ == "__main__":
 
