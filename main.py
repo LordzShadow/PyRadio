@@ -68,9 +68,9 @@ class MyWidget(QWidget):
             self.playing_label.setText("Stopped")
             self.playing = False
         else:
-            print(self.current)
             self.radio.stop()
             self.play()
+            print(self.current)
 
     def play(self):
         self.current = self.list.currentItem().text()
