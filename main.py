@@ -1,5 +1,6 @@
 import vlc
 import sys
+import os
 import webbrowser
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
@@ -14,6 +15,10 @@ class MyWidget(QWidget):
         super().__init__()
 
         self.streams = {}
+
+        scriptDir = os.path.dirname(os.path.realpath(__file__))
+        icon = (scriptDir + os.path.sep + "icon/pyradio.ico")
+        self.setWindowIcon(QtGui.QIcon(icon))
 
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
