@@ -8,6 +8,7 @@ from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWi
 
 streamfile = "radios.txt"
 
+
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -16,9 +17,9 @@ class MyWidget(QWidget):
 
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
-        
+
         self.pal = QtGui.QPalette(self.palette())
-        self.pal.setColor(self.pal.Background, QColor(15,15,15,255))
+        self.pal.setColor(self.pal.Background, QColor(15, 15, 15, 255))
         self.setPalette(self.pal)
         self.pal.setColor(self.pal.Foreground, QColor(255, 255, 255, 255))
         self.playing_label = QLabel("Stopped")
@@ -39,13 +40,14 @@ class MyWidget(QWidget):
         self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
         self.edit = QPushButton("Edit Radios")
         self.edit.setPalette(self.pal)
-        self.edit.clicked.connect(self.open)
+        self.edit.clicked.connect(self.openfile)
         self.refresh = QPushButton("Refresh")
         self.refresh.clicked.connect(self.refreshstreams)
         self.refresh.setPalette(self.pal)
 
         self.refreshstreams()
 
+        self.current = ""
         self.buttons = QHBoxLayout()
 
         self.layout = QVBoxLayout()
@@ -61,25 +63,27 @@ class MyWidget(QWidget):
 
     def control(self):
 
-        if self.playing:
+        if self.playing and self.current == self.streams[self.list.currentItem().text()]:
             self.radio.stop()
             self.playing_label.setText("Stopped")
             self.playing = False
         else:
+            print(self.current)
+            self.radio.stop()
             self.play()
 
     def play(self):
-        current = self.list.currentItem().text()
+        self.current = self.list.currentItem().text()
         for i in self.streams:
-            if current == i:
-                current = self.streams[i]
+            if self.current == i:
+                self.current = self.streams[i]
                 break
-        self.radio = vlc.MediaPlayer(current)
+        self.radio = vlc.MediaPlayer(self.current)
         self.radio.play()
         self.playing_label.setText("Playing")
         self.playing = True
 
-    def open(self):
+    def openfile(self):
         webbrowser.open(streamfile)
 
     def refreshstreams(self):
