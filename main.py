@@ -120,6 +120,7 @@ class MyWidget(QWidget):
                     self.hide()
 
     def call(self):
+        self.setWindowState(Qt.WindowActive)
         self.show()
         self.tray.hide()
 
