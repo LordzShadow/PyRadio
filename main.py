@@ -4,8 +4,8 @@ import os
 import webbrowser
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout
+from PySide2.QtCore import *
+from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon
 
 streamfile = "radios.txt"
 
@@ -16,9 +16,15 @@ class MyWidget(QWidget):
 
         self.streams = {}
 
+
         scriptDir = os.path.dirname(os.path.realpath(__file__))
         icon = (scriptDir + os.path.sep + "icon/pyradio.ico")
         self.setWindowIcon(QtGui.QIcon(icon))
+        self.tray = QSystemTrayIcon()
+        self.tray.setIcon(QtGui.QIcon(icon))
+
+        traySignal = "activated(QSystemTrayIcon::ActivationReason)"
+        QObject.connect(self.tray, SIGNAL(traySignal), self.call)
 
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
@@ -105,6 +111,18 @@ class MyWidget(QWidget):
 
         for n in self.streams:
             self.list.addItem(n)
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.WindowStateChange:
+            if self.windowState() and Qt.WindowMinimized:
+                if QSystemTrayIcon.isSystemTrayAvailable():
+                    self.tray.show()
+                    self.hide()
+
+    def call(self):
+        self.show()
+        self.tray.hide()
+
 
 if __name__ == "__main__":
 
