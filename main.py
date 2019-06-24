@@ -3,7 +3,7 @@ import sys
 import os
 import webbrowser
 from PySide2 import QtWidgets, QtGui
-from PySide2.QtGui import QColor
+from PySide2.QtGui import QColor, QKeyEvent
 from PySide2.QtCore import *
 from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon
 
@@ -15,7 +15,6 @@ class MyWidget(QWidget):
         super().__init__()
 
         self.streams = {}
-
 
         scriptDir = os.path.dirname(os.path.realpath(__file__))
         icon = (scriptDir + os.path.sep + "icon/pyradio.ico")
@@ -75,13 +74,16 @@ class MyWidget(QWidget):
     def control(self):
 
         if self.playing and self.current == self.streams[self.list.currentItem().text()]:
-            self.radio.stop()
-            self.playing_label.setText("Stopped")
-            self.playing = False
+            self.stop()
         else:
             self.radio.stop()
             self.play()
             print(self.current)
+
+    def stop(self):
+        self.radio.stop()
+        self.playing_label.setText("Stopped")
+        self.playing = False
 
     def play(self):
         self.current = self.list.currentItem().text()
@@ -118,6 +120,15 @@ class MyWidget(QWidget):
                 if QSystemTrayIcon.isSystemTrayAvailable():
                     self.tray.show()
                     self.hide()
+
+    def keyReleaseEvent(self, event):
+        key = event.key()
+        if key == Qt.Key_MediaPlay or key == Qt.Key_MediaTogglePlayPause or \
+        key == Qt.Key_MediaPause:
+            if self.playing:
+                self.stop()
+            elif not self.playing:
+                self.play()
 
     def call(self):
         self.setWindowState(Qt.WindowActive)
