@@ -2,6 +2,7 @@ import vlc
 import sys
 import os
 import webbrowser
+from pynput import keyboard
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
 from PySide2.QtCore import *
@@ -9,13 +10,11 @@ from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWi
 
 streamfile = "radios.txt"
 
-
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
 
         self.streams = {}
-
         scriptdir = os.path.dirname(os.path.realpath(__file__))
         icon = (scriptdir + os.path.sep + "icon/pyradio.ico")
         self.setWindowIcon(QtGui.QIcon(icon))
@@ -96,6 +95,43 @@ class MyWidget(QWidget):
         self.playing_label.setText("Playing")
         self.playing = True
 
+    def next(self):
+        isthis = False
+        self.current = self.list.currentItem().text()
+        for n, i in enumerate(self.streams):
+            if isthis:
+                self.list.setCurrentRow(n)
+                break
+            else:
+                if self.current == i:
+                    isthis = True
+                    if n+1 >= len(self.streams):
+                        self.list.setCurrentRow(0)
+        self.stop()
+        self.play()
+
+    def previous(self):
+        isthis = False
+        self.current = self.list.currentItem().text()
+        for n, i in enumerate(self.streams):
+            if isthis:
+                self.list.setCurrentRow(n-2)
+                break
+            else:
+                if self.current == i:
+                    isthis = True
+                    if n-1 < 0:
+                        self.list.setCurrentRow(len(self.streams) - 1)
+                        break
+                    elif n == len(self.streams)-1:
+                        self.list.setCurrentRow(n-1)
+
+
+        self.stop()
+        self.play()
+
+
+
     def openfile(self):
         webbrowser.open(streamfile)
 
@@ -121,21 +157,42 @@ class MyWidget(QWidget):
                     self.tray.show()
                     self.hide()
                     event.ignore()
+                    self.listener = keyboard.Listener(on_release=self.on_release)
+                    self.listener.start()
 
     def keyReleaseEvent(self, event):
-        print(event)
         key = event.key()
         if key == Qt.Key_MediaPlay or key == Qt.Key_MediaTogglePlayPause or \
-        key == Qt.Key_MediaPause:
+                key == Qt.Key_MediaPause:
             if self.playing:
                 self.stop()
             elif not self.playing:
                 self.play()
+        elif key == Qt.Key_MediaNext:
+            self.next()
+        elif key == Qt.Key_MediaPrevious:
+            self.previous()
     def call(self):
         self.show()
+        self.setFocus()
+        self.listener.stop()
+        del self.listener
         self.tray.hide()
 
 
+    def on_release(self, key):
+        try:
+            if key.vk == 269025044:
+                if self.playing:
+                    self.stop()
+                elif not self.playing:
+                    self.play()
+            elif key.vk == 269025047:
+                self.next()
+            elif key.vk == 269025046:
+                self.previous()
+        except:
+            pass
 if __name__ == "__main__":
 
     app = QtWidgets.QApplication([])
@@ -146,3 +203,5 @@ if __name__ == "__main__":
     widget.setWindowTitle("PyRadio")
 
     sys.exit(app.exec_())
+
+
