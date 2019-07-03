@@ -10,6 +10,7 @@ from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWi
 
 streamfile = "radios.txt"
 
+
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -94,6 +95,7 @@ class MyWidget(QWidget):
         self.radio.play()
         self.playing_label.setText("Playing")
         self.playing = True
+        self.tray.showMessage(self.list.currentItem().text(), "", self.tray.icon(), 1000)
 
     def next(self):
         isthis = False
@@ -129,8 +131,6 @@ class MyWidget(QWidget):
 
         self.stop()
         self.play()
-
-
 
     def openfile(self):
         webbrowser.open(streamfile)
@@ -172,6 +172,7 @@ class MyWidget(QWidget):
             self.next()
         elif key == Qt.Key_MediaPrevious:
             self.previous()
+
     def call(self):
         self.show()
         self.setFocus()
@@ -179,20 +180,21 @@ class MyWidget(QWidget):
         del self.listener
         self.tray.hide()
 
-
     def on_release(self, key):
         try:
-            if key.vk == 269025044:
+            if key.vk == 269025044:  # might need a different key
                 if self.playing:
                     self.stop()
                 elif not self.playing:
                     self.play()
-            elif key.vk == 269025047:
+            elif key.vk == 269025047:  # might need a different key
                 self.next()
-            elif key.vk == 269025046:
+            elif key.vk == 269025046:  # might need a different key
                 self.previous()
         except:
             pass
+
+
 if __name__ == "__main__":
 
     app = QtWidgets.QApplication([])
