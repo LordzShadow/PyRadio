@@ -3,7 +3,7 @@ import sys
 import os
 import webbrowser
 from PySide2 import QtWidgets, QtGui
-from PySide2.QtGui import QColor, QKeyEvent
+from PySide2.QtGui import QColor
 from PySide2.QtCore import *
 from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon
 
@@ -16,14 +16,14 @@ class MyWidget(QWidget):
 
         self.streams = {}
 
-        scriptDir = os.path.dirname(os.path.realpath(__file__))
-        icon = (scriptDir + os.path.sep + "icon/pyradio.ico")
+        scriptdir = os.path.dirname(os.path.realpath(__file__))
+        icon = (scriptdir + os.path.sep + "icon/pyradio.ico")
         self.setWindowIcon(QtGui.QIcon(icon))
         self.tray = QSystemTrayIcon()
         self.tray.setIcon(QtGui.QIcon(icon))
 
-        traySignal = "activated(QSystemTrayIcon::ActivationReason)"
-        QObject.connect(self.tray, SIGNAL(traySignal), self.call)
+        traysignal = "activated(QSystemTrayIcon::ActivationReason)"
+        QObject.connect(self.tray, SIGNAL(traysignal), self.call)
 
         self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
         self.playing = False
@@ -116,12 +116,14 @@ class MyWidget(QWidget):
 
     def changeEvent(self, event):
         if event.type() == QEvent.WindowStateChange:
-            if self.windowState() and Qt.WindowMinimized:
+            if self.windowState() == Qt.WindowMinimized:
                 if QSystemTrayIcon.isSystemTrayAvailable():
                     self.tray.show()
                     self.hide()
+                    event.ignore()
 
     def keyReleaseEvent(self, event):
+        print(event)
         key = event.key()
         if key == Qt.Key_MediaPlay or key == Qt.Key_MediaTogglePlayPause or \
         key == Qt.Key_MediaPause:
@@ -129,9 +131,7 @@ class MyWidget(QWidget):
                 self.stop()
             elif not self.playing:
                 self.play()
-
     def call(self):
-        self.setWindowState(Qt.WindowActive)
         self.show()
         self.tray.hide()
 
