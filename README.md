@@ -22,4 +22,6 @@ pip install -r requirements.txt
 - Supports media key usage
 - Minimize button minimizes to tray if possible
 
+![Image of App](https://github.com/LordzShadow/PyRadio/blob/master/imageofapp.png)
+
 
