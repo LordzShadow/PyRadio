@@ -21,6 +21,7 @@ pip install -r requirements.txt
 
 - Supports media key usage
 - Minimize button minimizes to tray if possible
+- **If you want to run without console on Windows, change main.py to main.pyw**
 
 ![Image of App](https://github.com/LordzShadow/PyRadio/blob/master/imageofapp.png)
 
