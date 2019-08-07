@@ -2,3 +2,4 @@
 .directory
 __pycache__/
 PyRadio.sh
+.vscode/

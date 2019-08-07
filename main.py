@@ -156,9 +156,9 @@ class MyWidget(QWidget):
                 if QSystemTrayIcon.isSystemTrayAvailable():
                     self.tray.show()
                     self.hide()
-                    event.ignore()
                     self.listener = keyboard.Listener(on_release=self.on_release)
                     self.listener.start()
+                    event.ignore()
 
     def keyReleaseEvent(self, event):
         key = event.key()
