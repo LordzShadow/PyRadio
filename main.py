@@ -19,13 +19,23 @@ class MyWidget(QWidget):
         scriptdir = os.path.dirname(os.path.realpath(__file__))
         icon = (scriptdir + os.path.sep + "icon/pyradio.ico")
         self.setWindowIcon(QtGui.QIcon(icon))
+
+        # Tray
         self.tray = QSystemTrayIcon()
         self.tray.setIcon(QtGui.QIcon(icon))
+        self.tray.activated.connect(self.call)
 
-        traysignal = "activated(QSystemTrayIcon::ActivationReason)"
-        QObject.connect(self.tray, SIGNAL(traysignal), self.call)
+        #traysignal = "activated(QSystemTrayIcon::ActivationReason)"
+        #QObject.connect(self.tray, SIGNAL(traysignal), self.call)
 
-        self.radio = vlc.MediaPlayer("http://retro.babahhcdn.com/RETRO")
+        # tray menu
+        self.trayIconMenu = QtWidgets.QMenu()
+        self.quitAction = QtWidgets.QAction("&Quit", triggered=QtWidgets.QApplication.instance().quit)
+        self.trayIconMenu.addAction(self.quitAction)
+        self.tray.setContextMenu(self.trayIconMenu)
+
+        # Media player
+        self.radio = vlc.MediaPlayer()
         self.playing = False
 
         self.pal = QtGui.QPalette(self.palette())
@@ -133,9 +143,14 @@ class MyWidget(QWidget):
         self.play()
 
     def openfile(self):
+
+        # Opens radios.txt
+
         webbrowser.open(streamfile)
 
     def refreshstreams(self):
+
+        # Refreshes the sream list when button pressed
 
         self.streams = {}
 
@@ -143,7 +158,7 @@ class MyWidget(QWidget):
             lines = file.readlines()
             for line in lines:
                 nline = line.strip().split(":", 1)
-                self.streams[nline[0]] = nline[1]
+                self.streams[nline[0]] = nline[1].split("#")[0]
 
         self.list.clear()
 
@@ -151,6 +166,9 @@ class MyWidget(QWidget):
             self.list.addItem(n)
 
     def changeEvent(self, event):
+
+        # This minimizes the program to tray when Minimize button pressed
+
         if event.type() == QEvent.WindowStateChange:
             if self.windowState() == Qt.WindowMinimized:
                 if QSystemTrayIcon.isSystemTrayAvailable():
@@ -161,6 +179,9 @@ class MyWidget(QWidget):
                     event.ignore()
 
     def keyReleaseEvent(self, event):
+
+        # This is for media controls when radio is opened
+
         key = event.key()
         if key == Qt.Key_MediaPlay or key == Qt.Key_MediaTogglePlayPause or \
                 key == Qt.Key_MediaPause:
@@ -173,14 +194,24 @@ class MyWidget(QWidget):
         elif key == Qt.Key_MediaPrevious:
             self.previous()
 
-    def call(self):
-        self.show()
-        self.setFocus()
-        self.listener.stop()
-        del self.listener
-        self.tray.hide()
+    def call(self, reason):
+        # This is caled when tray icon is pressed
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            self.show()
+            self.setFocus()
+            self.listener.stop()
+            del self.listener
+            self.tray.hide()
+        elif reason == QSystemTrayIcon.ActivationReason.Context:
+            print("Right-click detected")
+            self.tray.contextMenu().show()
+        elif reason == QSystemTrayIcon.ActivationReason.MiddleClick:
+            print("Middle-click detected")
+        else:
+            print("Unknown reason")
 
     def on_release(self, key):
+        # This is for media controls when program in tray.
         try:
             if key.vk == 269025044:  # might need a different key
                 if self.playing:
