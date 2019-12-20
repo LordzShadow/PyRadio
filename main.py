@@ -171,12 +171,13 @@ class MyWidget(QWidget):
 
         if event.type() == QEvent.WindowStateChange:
             if self.windowState() == Qt.WindowMinimized:
+                print(self.windowState())
                 if QSystemTrayIcon.isSystemTrayAvailable():
+                    event.ignore()
                     self.tray.show()
                     self.hide()
                     self.listener = keyboard.Listener(on_release=self.on_release)
                     self.listener.start()
-                    event.ignore()
 
     def keyReleaseEvent(self, event):
 
