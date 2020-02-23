@@ -1,7 +1,7 @@
 # PyRadio
 Simple GUI for streaming internet radios using VLC, python-vlc and Qt for Python.
 
-**Doesn't support MacOS because of permissions problem**
+**Doesn't support MacOS because of a permissions problem**
 
 ### Installation
 
@@ -21,6 +21,8 @@ pip install -r requirements.txt
 
 - Supports media key usage
 - Minimize button minimizes to tray if possible
+- Volume slider to control VLC volume
+
 - **If you want to run without console on Windows, change main.py to main.pyw**
 
 ![Image of App](https://github.com/LordzShadow/PyRadio/blob/master/imageofapp.png)
