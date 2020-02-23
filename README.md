@@ -25,6 +25,6 @@ pip install -r requirements.txt
 
 - **If you want to run without console on Windows, change main.py to main.pyw**
 
-![Image of App](https://github.com/LordzShadow/PyRadio/blob/master/imageofapp.png)
+![Image of App](imageofapp.png)
 
 
