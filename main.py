@@ -6,7 +6,7 @@ from pynput import keyboard
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
 from PySide2.QtCore import *
-from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon
+from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon, QSlider
 
 streamfile = "radios.txt"
 
@@ -39,31 +39,41 @@ class MyWidget(QWidget):
         self.playing = False
 
         self.pal = QtGui.QPalette(self.palette())
+
         self.pal.setColor(self.pal.Background, QColor(15, 15, 15, 255))
         self.setPalette(self.pal)
-        self.pal.setColor(self.pal.Foreground, QColor(255, 255, 255, 255))
+
         self.playing_label = QLabel("Stopped")
         self.label = QLabel("Radios:")
-        self.playing_label.setPalette(self.pal)
-        self.label.setPalette(self.pal)
+
         self.label.setAlignment(Qt.AlignCenter)
         self.playing_label.setAlignment(Qt.AlignCenter)
-        self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
         self.btn = QPushButton("Play/Stop")
-        self.btn.setPalette(self.pal)
         self.btn.clicked.connect(self.control)
         self.list = QListWidget()
-        self.pal.setColor(self.pal.Base, QColor(20, 20, 20, 255))
-        self.list.setPalette(self.pal)
-        self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
-        self.list.setPalette(self.pal)
-        self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
+
         self.edit = QPushButton("Edit Radios")
-        self.edit.setPalette(self.pal)
         self.edit.clicked.connect(self.openfile)
         self.refresh = QPushButton("Refresh")
         self.refresh.clicked.connect(self.refreshstreams)
+
+        self.slider = QSlider(QtGui.Qt.Horizontal)
+        self.slider.setMaximum(100)
+        self.slider.setValue(self.getVolume())
+        self.slider.valueChanged.connect(self.changeVolume)
+
+        self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
+        self.btn.setPalette(self.pal)
+        self.edit.setPalette(self.pal)
         self.refresh.setPalette(self.pal)
+
+        self.pal.setColor(self.pal.Base, QColor(20, 20, 20, 255))
+        self.list.setPalette(self.pal)
+
+        self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
+        self.list.setPalette(self.pal)
+        self.playing_label.setPalette(self.pal)
+        self.label.setPalette(self.pal)
 
         self.refreshstreams()
 
@@ -74,12 +84,27 @@ class MyWidget(QWidget):
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.list)
         self.layout.addWidget(self.playing_label)
+        self.layout.addWidget(self.slider)
         self.buttons.addWidget(self.btn)
         self.buttons.addWidget(self.edit)
         self.buttons.addWidget(self.refresh)
 
         self.layout.addLayout(self.buttons)
         self.setLayout(self.layout)
+
+    def changeVolume(self):
+        self.radio.audio_set_volume(self.slider.value())
+        with open("data", "w") as file:
+            file.write(str(self.slider.value()))
+
+    def getVolume(self):
+        try:
+            with open("data", "r") as file:
+                return int(file.readline())
+        except:
+            with open("data", "w") as file:
+                file.write(str(80))
+                return 80
 
     def control(self):
 
@@ -103,6 +128,8 @@ class MyWidget(QWidget):
                 break
         self.radio = vlc.MediaPlayer(self.current)
         self.radio.play()
+        self.radio.audio_set_volume(self.slider.value())
+        print(self.radio.audio_get_volume())
         self.playing_label.setText("Playing")
         self.playing = True
         self.tray.showMessage(self.list.currentItem().text(), "", self.tray.icon(), 1000)
@@ -143,14 +170,12 @@ class MyWidget(QWidget):
         self.play()
 
     def openfile(self):
-
         # Opens radios.txt
-
         webbrowser.open(streamfile)
 
     def refreshstreams(self):
 
-        # Refreshes the sream list when button pressed
+        # Refreshes the stream list when button pressed
 
         self.streams = {}
 
@@ -186,10 +211,7 @@ class MyWidget(QWidget):
         key = event.key()
         if key == Qt.Key_MediaPlay or key == Qt.Key_MediaTogglePlayPause or \
                 key == Qt.Key_MediaPause:
-            if self.playing:
-                self.stop()
-            elif not self.playing:
-                self.play()
+            self.control()
         elif key == Qt.Key_MediaNext:
             self.next()
         elif key == Qt.Key_MediaPrevious:
@@ -215,10 +237,7 @@ class MyWidget(QWidget):
         # This is for media controls when program in tray.
         try:
             if key.vk == 269025044:  # might need a different key
-                if self.playing:
-                    self.stop()
-                elif not self.playing:
-                    self.play()
+                self.control()
             elif key.vk == 269025047:  # might need a different key
                 self.next()
             elif key.vk == 269025046:  # might need a different key
