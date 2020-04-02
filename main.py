@@ -51,6 +51,7 @@ class MyWidget(QWidget):
         self.btn = QPushButton("Play/Stop")
         self.btn.clicked.connect(self.control)
         self.list = QListWidget()
+        self.list.itemDoubleClicked.connect(self.control)
 
         self.edit = QPushButton("Edit Radios")
         self.edit.clicked.connect(self.openfile)
@@ -225,6 +226,7 @@ class MyWidget(QWidget):
             self.listener.stop()
             del self.listener
             self.tray.hide()
+            self.setWindowState(Qt.WindowActive)
         elif reason == QSystemTrayIcon.ActivationReason.Context:
             print("Right-click detected")
             self.tray.contextMenu().show()
@@ -236,14 +238,14 @@ class MyWidget(QWidget):
     def on_release(self, key):
         # This is for media controls when program in tray.
         try:
-            if key.vk == 269025044:  # might need a different key
+            if key == keyboard.Key.media_play_pause:  # might need a different key
                 self.control()
-            elif key.vk == 269025047:  # might need a different key
+            elif keyboard.Key.media_next == key:  # might need a different key
                 self.next()
-            elif key.vk == 269025046:  # might need a different key
+            elif keyboard.Key.media_previous == key:  # might need a different key
                 self.previous()
-        except:
-            pass
+        except AttributeError as e:
+            print(e)
 
 
 if __name__ == "__main__":
