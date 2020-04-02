@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ### Usage
 
 - To add radios open radios.txt and following the syntax add the name and URL
-- ´<Name of radio>:<URL to stream>´
+- `<Name of radio>:<URL to stream>`
 - Run main.py, choose your radio and press Play!
 
 - Supports media key usage
