@@ -1,0 +1,7 @@
+MyHits:http://striiming.trio.ee/myhits.mp3
+Elmar:http://striiming.trio.ee/elmar.mp3
+Retro:http://retro.babahhcdn.com/RETRO
+Rock:http://skyplus.babahhcdn.com:7004/rck
+Power:http://phr.babahhcdn.com/phr
+StarFM:http://phr.babahhcdn.com/starfm
+Code Radio:https://coderadio-admin.freecodecamp.org/radio/8010/radio.mp3

@@ -25,6 +25,10 @@ class MyWidget(QWidget):
         self.tray.setIcon(QtGui.QIcon(icon))
         self.tray.activated.connect(self.call)
 
+        self.icon = QtGui.QIcon()
+        self.icon.addFile(icon)
+        self.setWindowIcon(self.icon)
+
         #traysignal = "activated(QSystemTrayIcon::ActivationReason)"
         #QObject.connect(self.tray, SIGNAL(traysignal), self.call)
 
@@ -196,9 +200,9 @@ class MyWidget(QWidget):
         # This minimizes the program to tray when Minimize button pressed
 
         if event.type() == QEvent.WindowStateChange:
-            if self.windowState() == Qt.WindowMinimized:
-                print(self.windowState())
-                if QSystemTrayIcon.isSystemTrayAvailable():
+            if self.windowState() & Qt.WindowMinimized:
+                print(QSystemTrayIcon.isSystemTrayAvailable())
+                if QSystemTrayIcon.isSystemTrayAvailable() and self.isActiveWindow():
                     event.ignore()
                     self.tray.show()
                     self.hide()
@@ -228,10 +232,9 @@ class MyWidget(QWidget):
             self.tray.hide()
             self.setWindowState(Qt.WindowActive)
         elif reason == QSystemTrayIcon.ActivationReason.Context:
-            print("Right-click detected")
             self.tray.contextMenu().show()
         elif reason == QSystemTrayIcon.ActivationReason.MiddleClick:
-            print("Middle-click detected")
+            print("Middle click on tray icon")
         else:
             print("Unknown reason")
 
