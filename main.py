@@ -6,7 +6,8 @@ from pynput import keyboard
 from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
 from PySide2.QtCore import *
-from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon, QSlider
+from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon, \
+    QSlider
 
 streamfile = "radios.txt"
 
@@ -19,7 +20,7 @@ class MyWidget(QWidget):
         scriptdir = os.path.dirname(os.path.realpath(__file__))
         icon = (scriptdir + os.path.sep + "icon/pyradio.ico")
         self.setWindowIcon(QtGui.QIcon(icon))
-
+        self.setStuff()
         # Tray
         self.tray = QSystemTrayIcon()
         self.tray.setIcon(QtGui.QIcon(icon))
@@ -29,23 +30,18 @@ class MyWidget(QWidget):
         self.icon.addFile(icon)
         self.setWindowIcon(self.icon)
 
-        #traysignal = "activated(QSystemTrayIcon::ActivationReason)"
-        #QObject.connect(self.tray, SIGNAL(traysignal), self.call)
-
         # tray menu
         self.trayIconMenu = QtWidgets.QMenu()
-        self.quitAction = QtWidgets.QAction("&Quit", triggered=QtWidgets.QApplication.instance().quit)
+        self.quitAction = QtWidgets.QAction("&Quit", triggered=self.close)
         self.trayIconMenu.addAction(self.quitAction)
         self.tray.setContextMenu(self.trayIconMenu)
+        self.trayIconMenu.setStyleSheet(open("css/main.css", "r").read())
 
         # Media player
         self.radio = vlc.MediaPlayer()
         self.playing = False
 
         self.pal = QtGui.QPalette(self.palette())
-
-        self.pal.setColor(self.pal.Background, QColor(15, 15, 15, 255))
-        self.setPalette(self.pal)
 
         self.playing_label = QLabel("Stopped")
         self.label = QLabel("Radios:")
@@ -64,21 +60,10 @@ class MyWidget(QWidget):
 
         self.slider = QSlider(QtGui.Qt.Horizontal)
         self.slider.setMaximum(100)
-        self.slider.setValue(self.getVolume())
+        self.slider.setValue(self.volume)
         self.slider.valueChanged.connect(self.changeVolume)
 
-        self.pal.setColor(self.pal.Button, QColor(30, 30, 30, 255))
-        self.btn.setPalette(self.pal)
-        self.edit.setPalette(self.pal)
-        self.refresh.setPalette(self.pal)
-
-        self.pal.setColor(self.pal.Base, QColor(20, 20, 20, 255))
-        self.list.setPalette(self.pal)
-
-        self.pal.setColor(self.pal.Text, QColor(255, 255, 255, 255))
-        self.list.setPalette(self.pal)
-        self.playing_label.setPalette(self.pal)
-        self.label.setPalette(self.pal)
+        self.setStyleSheet(open("css/main.css", "r").read())
 
         self.refreshstreams()
 
@@ -97,10 +82,30 @@ class MyWidget(QWidget):
         self.layout.addLayout(self.buttons)
         self.setLayout(self.layout)
 
+    def setStuff(self):
+        info = self.readInfo()
+        print(info)
+        if len(info) == 0:
+            info = ["", "", "", ""]
+        if (info[0] == ""):
+            self.volume = 80
+        else:
+            self.volume = int(info[0])
+        if info[3].strip() == "false" or info[3] == "":
+            if info[1] == "":
+                self.resize(800, 600)
+            else:
+                w, h = info[1].split(" ")
+                self.resize(int(w), int(h))
+            if info[2] != "":
+                x, y = info[2].split(" ")
+                self.move(int(x), int(y))
+        else:
+            self.showMaximized()
+
     def changeVolume(self):
-        self.radio.audio_set_volume(self.slider.value())
-        with open("data", "w") as file:
-            file.write(str(self.slider.value()))
+        self.volume = self.slider.value()
+        self.radio.audio_set_volume(self.volume)
 
     def getVolume(self):
         try:
@@ -112,13 +117,11 @@ class MyWidget(QWidget):
                 return 80
 
     def control(self):
-
         if self.playing and self.current == self.streams[self.list.currentItem().text()]:
             self.stop()
         else:
             self.radio.stop()
             self.play()
-            print(self.current)
 
     def stop(self):
         self.radio.stop()
@@ -134,7 +137,6 @@ class MyWidget(QWidget):
         self.radio = vlc.MediaPlayer(self.current)
         self.radio.play()
         self.radio.audio_set_volume(self.slider.value())
-        print(self.radio.audio_get_volume())
         self.playing_label.setText("Playing")
         self.playing = True
         self.tray.showMessage(self.list.currentItem().text(), "", self.tray.icon(), 1000)
@@ -181,7 +183,10 @@ class MyWidget(QWidget):
     def refreshstreams(self):
 
         # Refreshes the stream list when button pressed
-
+        if self.list.currentItem():
+            current = self.list.currentItem().text()
+        else:
+            current = None
         self.streams = {}
 
         with open(streamfile, "r") as file:
@@ -192,9 +197,12 @@ class MyWidget(QWidget):
 
         self.list.clear()
 
-        for n in self.streams:
+        for i,n in enumerate(self.streams):
             self.list.addItem(n)
-
+            if n == current:
+                self.list.setCurrentRow(i)
+        if not self.list.currentItem():
+            self.list.setCurrentRow(0)
     def changeEvent(self, event):
 
         # This minimizes the program to tray when Minimize button pressed
@@ -208,6 +216,28 @@ class MyWidget(QWidget):
                     self.hide()
                     self.listener = keyboard.Listener(on_release=self.on_release)
                     self.listener.start()
+
+    def closeEvent(self, event):
+        file = open("data", "w+")
+        info = str(self.volume) + "\n" + str(self.size().width()) + " " + str(self.size().height()) + "\n" +\
+               str(self.pos().x()) + " " + str(self.pos().y()) + "\n"
+        if (self.isMaximized()):
+            info += "true"
+        else:
+            info += "false"
+        info += "\n"
+        file.write(info)
+        file.close()
+
+    def readInfo(self):
+        try:
+            with open("data", "r", encoding="utf-8") as file:
+                info = file.readlines()
+                return info
+        except:
+            with open("data", "w", encoding="utf-8") as file:
+                file.write("")
+                return ""
 
     def keyReleaseEvent(self, event):
 
@@ -256,7 +286,6 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication([])
 
     widget = MyWidget()
-    widget.resize(600, 400)
     widget.show()
     widget.setWindowTitle("PyRadio")
 
