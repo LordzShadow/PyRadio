@@ -2,7 +2,7 @@
  False,
  False,
  True,
- None,
+ './icon/pyradio.ico',
  None,
  False,
  False,
@@ -37,7 +37,7 @@
  [],
  False,
  False,
- 1585904624,
+ 1585913016,
  [('runw.exe',
    'c:\\users\\kusta\\appdata\\local\\programs\\python\\python37\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\runw.exe',
    'EXECUTABLE')])
