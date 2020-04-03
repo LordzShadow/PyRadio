@@ -26,11 +26,6 @@ pip install -r requirements.txt
 
 - **If you want to run without console on Windows, change main.py to main.pyw**
 
-### Executable file for windows
-- To run the program, run PyRadio.exe in dist folder.(YOU NEED THE WHOLE DIST FOLDER)
-- (not sure if you need anything else)
-- radios.txt is also in the dist folder if you want to edit it without using the program.
 
 ![Image of App](imageofapp.png)
-
 
