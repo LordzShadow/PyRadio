@@ -7,15 +7,13 @@ from PySide2 import QtWidgets, QtGui
 from PySide2.QtGui import QColor
 from PySide2.QtCore import *
 from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QListWidget, QHBoxLayout, QSystemTrayIcon, \
-    QSlider
-
-streamfile = "radios.txt"
-
+    QSlider, QFileDialog
 
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.streamfile = ""
         self.streams = {}
         scriptdir = os.path.dirname(os.path.realpath(__file__))
         icon = (scriptdir + os.path.sep + "icon/pyradio.ico")
@@ -86,7 +84,7 @@ class MyWidget(QWidget):
         info = self.readInfo()
         print(info)
         if len(info) == 0:
-            info = ["", "", "", ""]
+            info = ["", "", "", "", ""]
         if (info[0] == ""):
             self.volume = 80
         else:
@@ -102,6 +100,18 @@ class MyWidget(QWidget):
                 self.move(int(x), int(y))
         else:
             self.showMaximized()
+        if len(info) < 5:
+            # show dialog
+            self.chooseStreamfile()
+        else:
+            self.streamfile = info[4].strip()
+
+    def chooseStreamfile(self):
+        self.dialog = QFileDialog(self)
+        self.dialog.setFileMode(QFileDialog.AnyFile)
+        if self.dialog.exec_():
+            filename = self.dialog.selectedFiles()
+            self.streamfile = filename[0]
 
     def changeVolume(self):
         self.volume = self.slider.value()
@@ -178,7 +188,7 @@ class MyWidget(QWidget):
 
     def openfile(self):
         # Opens radios.txt
-        webbrowser.open(streamfile)
+        webbrowser.open(self.streamfile)
 
     def refreshstreams(self):
 
@@ -188,12 +198,16 @@ class MyWidget(QWidget):
         else:
             current = None
         self.streams = {}
-
-        with open(streamfile, "r") as file:
-            lines = file.readlines()
-            for line in lines:
-                nline = line.strip().split(":", 1)
-                self.streams[nline[0]] = nline[1].split("#")[0]
+        try:
+            with open(self.streamfile, "r") as file:
+                lines = file.readlines()
+                for line in lines:
+                    nline = line.strip().split(":", 1)
+                    self.streams[nline[0]] = nline[1].split("#")[0]
+        except:
+            self.chooseStreamfile()
+            self.refreshstreams()
+            return
 
         self.list.clear()
 
@@ -226,6 +240,7 @@ class MyWidget(QWidget):
         else:
             info += "false"
         info += "\n"
+        info += self.streamfile + "\n"
         file.write(info)
         file.close()
 
